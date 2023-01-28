@@ -65,6 +65,25 @@ import '../../css/chat.css'
     </AppLayout>
 </template>
 
+<script>
+    export default  {
+        components: {
+            AppLayout,
+        },
+        data() {
+            return {
+                users: []
+            }
+        },
+        mounted() {
+            axios.get('api/users',{ withCredentials: true }).then(response => {
+                console.log(response);
+            })
+        }
+        }
+    }
+</script>
+
 <style>
     .messageFromMe{
         @apply bg-indigo-300 bg-opacity-25;
