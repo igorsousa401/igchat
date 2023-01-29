@@ -19,30 +19,13 @@ class UserController extends Controller
         ],Response::HTTP_OK);
     }
 
-    public function get_messages($auth_id,$user_id){
-        $from = $auth_id;
-        $to = $user_id;
-        $messages = Message::where(
-            function($query) use($from, $to) {
-                $query->where([
-                    'from' => $from,
-                    'to' => $to
-                ]);
-            }
-        )->orWhere(
-                function($query) use($from, $to) {
-                    $query->where([
-                        'from' => $to,
-                        'to' => $from
-                    ]);
-                }
-            )
-            ->orderBy('created_at', 'ASC')
-            ->get();
 
-        return response()->json([
-            'messages' => $messages,
-        ], Response::HTTP_OK);
+
+    public function user_active($user_id) {
+
+        $user_active = User::where('id', '=', $user_id)->get()->first();
+
+        return response()->json(['user' => $user_active], Response::HTTP_OK);
     }
 
 

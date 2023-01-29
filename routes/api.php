@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\UserController;
+use \App\Http\Controllers\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group([], function () {
-    Route::get('/users/{auth_id}', [UserController::class, 'get_users']);
-    Route::get('/messages/{auth_id}/{user_id}', [UserController::class, 'get_messages']);
+    Route::get('/users/{auth_id}', [UserController::class, 'get_users'])->name('users.users');
+    Route::get('users/active/{userId}', [UserController::class, 'user_active'])->name('users.user_active');
+
+    Route::get('/messages/{auth_id}/{user_id}', [MessageController::class, 'index'])->name('users.index');
+    Route::post('/messages/store', [MessageController::class, 'store'])->name('users.store');
+
 });

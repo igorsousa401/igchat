@@ -20,6 +20,7 @@ import '../../css/chat.css'
                         <ul>
                             <li
                                 @click="() => {loadMessages(user.id)}"
+                                :class="userActive && userActive.id == user.id ? 'bg-gray-200 bg-opacity-50' : ''"
                                 v-for="user in users" :key="user.id"
                                 class="p-6 text-lg text-gray-600 leading-7 font-semibold border-b border-gray-200 hover:bg-gray-200 hover:cursor-pointer"
                             >
@@ -37,7 +38,7 @@ import '../../css/chat.css'
                             <div
                                 v-for="message in messages" :key="message.id"
                                 :class="message.from == $page.props.user.id ? 'text-right' : ''"
-                                class="w-full mb-3">
+                                class="w-full mb-3 messageScroll">
                                 <p
                                     :class="message.from == $page.props.user.id ? 'messageFromMe' : 'messageToMe'"
                                     class="inline-block p-2 rounded-md" style="max-width: 75%;">
@@ -48,10 +49,12 @@ import '../../css/chat.css'
 
                         </div>
 
-                        <div class="w-full bg-gray-200 p-6 bg-opacity-25 border-t border-gray-200">
-                            <form>
+                        <div
+                            v-if="userActive"
+                            class="w-full bg-gray-200 p-6 bg-opacity-25 border-t border-gray-200">
+                            <form v-on:submit.prevent="sendMessage">
                                 <div class="flex rounded-md overflow-hidden border border-gray-300">
-                                    <input type="text" class="flex-1 px-4 py-2 text-sm border-none focus:ring-0"/>
+                                    <input v-model="message" type="text" class="flex-1 px-4 py-2 text-sm border-none focus:ring-0"/>
                                     <button type="submit" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2">Enviar</button>
                                 </div>
                             </form>
@@ -67,29 +70,52 @@ import '../../css/chat.css'
     import moment from "moment/moment";
 
     export default  {
-        filters: {
-            formatDate: function (value) {
-                if (value){
-                    return moment(value).format('DD/MM/YYY HH:mm');
-                }
-
-            }
-        },
-        components: {
-            AppLayout,
-        },
         data() {
             return {
                 users: [],
-                messages: []
+                messages: [],
+                userActive: null,
+                message: ''
             }
         },
         methods: {
-            loadMessages: function (userId){
-                axios.get(`api/messages/${auth_id}/${userId}`).then(response => {
+            scrollToBottom: function () {
+                if(this.messages.length) {
+                    document.querySelectorAll('.messageScroll:last-child')[0].scrollIntoView();
+                }
+            },
+            loadMessages: async function (userId){
+
+                axios.get(`api/users/active/${userId}`).then(response => {
+                    this.userActive = response.data.user;
+                });
+
+               await axios.get(`api/messages/${auth_id}/${userId}`).then(response => {
                     this.messages = response.data.messages;
-                })
-            }
+
+                });
+
+               this.scrollToBottom();
+            },
+            sendMessage: async function () {
+                await axios.post('api/messages/store', {
+                    'content' : this.message,
+                    'from': auth_id,
+                    'to' : this.userActive.id
+                }).then(response => {
+                    this.messages.push({
+                        'from': auth_id,
+                        'to': this.userActive.id,
+                        'content': this.message,
+                        'created_at': new Date().toISOString(),
+                        'updated_at': new Date().toISOString()
+                    })
+
+                    this.message = '';
+                });
+
+                this.scrollToBottom();
+            },
         },
         mounted() {
             axios.get('api/users/'+ auth_id).then(response => {
