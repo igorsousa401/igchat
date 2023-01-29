@@ -18,4 +18,9 @@
     <body class="font-sans antialiased">
         @inertia
     </body>
+    @if(auth()->user() != NULL)
+        <script>
+            var auth_id = {{auth()->user()->id}}
+        </script>
+    @endif
 </html>

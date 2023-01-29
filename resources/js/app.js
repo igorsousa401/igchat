@@ -5,8 +5,12 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
+import moment from 'moment';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
+
+moment.locale('pt-br');
+
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
