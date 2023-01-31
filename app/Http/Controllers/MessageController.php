@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Chat\SendMessage;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Symfony\Component\HttpFoundation\Response;
 use App\Models\User;
 
@@ -64,6 +66,8 @@ class MessageController extends Controller
         $message->to = $request->to;
         $message->content = filter_var($request->content, FILTER_SANITIZE_STRIPPED);
         $message->save();
+
+        Event::dispatch(new SendMessage($message, $request->to));
 
         return response()->json([
             'message' =>$message

@@ -11,6 +11,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
+    public function me() {
+        $user_logged = \auth()->user();
+
+        return response()->json([
+            'user' => $user_logged,
+        ], Response::HTTP_OK);
+    }
     public function get_users($auth_id) {
 
         $users = User::where('id', '!=', $auth_id)->get();

@@ -1,6 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import '../../css/chat.css'
+import '../../css/chat.css';
+
 </script>
 
 <template>
@@ -26,7 +27,7 @@ import '../../css/chat.css'
                             >
                                 <p class="flex items-center">
                                     {{ user.name }}
-                                    <span class="ml-2 w-2 h-2 bg-blue-500 rounded-full"></span>
+                                    <span v-if="user.notification" class="ml-2 w-2 h-2 bg-blue-500 rounded-full"></span>
                                 </p>
                             </li>
                         </ul>
@@ -67,8 +68,6 @@ import '../../css/chat.css'
 </template>
 
 <script>
-    import moment from "moment/moment";
-
     export default  {
         data() {
             return {
@@ -121,6 +120,24 @@ import '../../css/chat.css'
             axios.get('api/users/'+ auth_id).then(response => {
                 this.users = response.data.users;
             })
+
+            Echo.private(`user.${auth_id}`).listen('.SendMessage', async (e) => {
+
+                if(this.userActive && this.userActive.id == e.message.from){
+                    await this.messages.push(e.message);
+                    this.scrollToBottom();
+                } else {
+                    const user = this.users.filter((user) => {
+                        if(user.id === e.message.from) {
+                            return user;
+                        }
+                    });
+
+                    if(user) {
+                        Vue.set(user[0], 'notification', true);
+                    }
+                }
+            });
         }
     }
 </script>

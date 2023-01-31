@@ -2,14 +2,32 @@ import './bootstrap';
 import '../css/app.css';
 
 import { createApp, h } from 'vue';
+import {createStore, Store} from 'vuex';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
 import moment from 'moment';
 
+const store = createStore({
+    state: {
+        user: {}
+    },
+    mutations: {
+        setUserState: (state, value) => state.user = value,
+    },
+    actions: {
+        userStateAction: () => {
+
+        }
+    }
+});
+
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
 moment.locale('pt-br');
+
+
+store.dispatch('userStateAction');
 
 
 createInertiaApp({
@@ -19,6 +37,7 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue, Ziggy)
+            .use(store)
             .mount(el);
     },
     progress: {
